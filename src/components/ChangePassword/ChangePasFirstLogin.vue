@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, watch } from 'vue'
 import useChangePassword from './ChangePassword'
 import { currentLanguage } from '@/i18n'
@@ -214,4 +214,4 @@ const {
       </div>
     </div>
   </div>
-</template>
+</template> -->

@@ -15,8 +15,8 @@ import RegisterView from '@/views/Customers/Register.vue'
 import CustomersView from '@/views/Customers/Customers.vue'
 import Login from '@/views/Login/Login.vue'
 import ResetPasswordCustomerView from '@/views/Customers/ResetPassword.vue'
-import ChangePasswordView from '@/views/ChangePassword/ChangePassword.vue'
-import ChangePassFirstLoginView from '@/views/ChangePassword/ChangePassFirstLogin.vue'
+// import ChangePasswordView from '@/views/ChangePassword/ChangePassword.vue'
+// import ChangePassFirstLoginView from '@/views/ChangePassword/ChangePassFirstLogin.vue'
 import PreviewViewView from '@/views/Previews/PreviewView.vue'
 import ReportCustomersView from '@/views/Report/ReportCustomers.vue'
 import { PATH } from './pathName'
@@ -38,24 +38,24 @@ const routes = [
       title: 'Login'
     }
   },
-  {
-    path: PATH.CHANGE_PASSWORD_FIRST,
-    name: 'changePasswordFirst',
-    component: ChangePassFirstLoginView,
-    meta: {
-      title: 'changePassword',
-      requiresAuth: true
-    }
-  },
-  {
-    path: PATH.CHANGE_PASSWORD,
-    name: 'changePassword',
-    component: ChangePasswordView,
-    meta: {
-      title: 'changePassword',
-      requiresAuth: true
-    }
-  },
+  // {
+  //   path: PATH.CHANGE_PASSWORD_FIRST,
+  //   name: 'changePasswordFirst',
+  //   component: ChangePassFirstLoginView,
+  //   meta: {
+  //     title: 'changePassword',
+  //     requiresAuth: true
+  //   }
+  // },
+  // {
+  //   path: PATH.CHANGE_PASSWORD,
+  //   name: 'changePassword',
+  //   component: ChangePasswordView,
+  //   meta: {
+  //     title: 'changePassword',
+  //     requiresAuth: true
+  //   }
+  // },
   {
     path: '/preview',
     name: 'preview',

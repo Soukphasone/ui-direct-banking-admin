@@ -1,20 +1,22 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showAlert } from '@/stores/alert'
 import { defineProps } from 'vue'
 import { useOpenModalStore } from '@/stores/modal'
+import { te } from 'date-fns/locale'
 
 const { t } = useI18n()
 const isOpen = useOpenModalStore()
 const selectedBranch = ref('')
-// const customerFind = ref([])
-// const error = ref('')
-// const cif = computed(() => props.data.CIF || '')
-// const fullName = computed(() => props.data.FULLNAME || '')
-// const email = computed(() => props.data.EMAIL || '')
-// const tel = computed(() => props.data.TEL || '')
-// const createdDate = computed(() => props.data.CREATE_DATE || '')
+const cif = ref('')
+const fullName = ref('')
+const email = ref('')
+const tel = ref('')
+const userName = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const error = ref(false)
 const branches = ref([
   { id: 1, branch_id: '010', name: 'LAO - VIET BANK, HEAD OFFICE' },
   { id: 2, branch_id: '011', name: 'SALAKHAM BANKING UNIT' },
@@ -42,8 +44,33 @@ const branches = ref([
   { id: 24, branch_id: '100', name: 'UODOMXAY BANKING UNIT' },
   { id: 25, branch_id: '110', name: 'LAO VIETBANK BOLIKHAMXAY UNIT' }
 ])
-const handleUpdate = () => {
+const clearFrom = () => {
+  cif.value = ''
+  selectedBranch.value = ''
+  fullName.value = ''
+  email.value = ''
+  tel.value = ''
+  userName.value = ''
+  password.value = ''
+  confirmPassword.value = ''
   isOpen.isOpenModalEdit = false
+  error.value = false
+}
+const handleUpdate = () => {
+  if (
+    !cif.value ||
+    !selectedBranch.value ||
+    !fullName.value ||
+    !email.value ||
+    !tel.value ||
+    !userName.value ||
+    !password.value ||
+    !confirmPassword.value
+  ) {
+    error.value = true
+    return
+  }
+  clearFrom()
   showAlert(
     t('update'),
     t('success'),
@@ -76,7 +103,8 @@ onBeforeUnmount(() => {
     <!-- Modal Overlay -->
     <button
       type="button"
-      class="px-4 py-2 bg-red-500 text-whiter rounded-lg transition focus:outline-none hover:bg-red-600"
+      class="px-4 py-2 bg-red-500 text-white rounded-lg transition focus:outline-none hover:bg-red-600"
+      :class="{ hidden: isOpen.isOpenModalEdit, block: !isOpen.isOpenModalEdit }"
       @click="isOpen.isOpenModalEdit = true"
     >
       {{ t('register_here') }}
@@ -103,106 +131,198 @@ onBeforeUnmount(() => {
           </h2>
           <div class="space-y-2">
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
-                {{ t('branch_register') }}
-              </label>
-              <select
-                v-model="selectedBranch"
-                class="bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary-600 focus:border-black block py-1 px-3 w-full"
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
                 :class="{
-                  'text-gray-500': selectedBranch === '',
-                  'text-gray-900 text-sm': selectedBranch != ''
+                  'text-red-500': error && !selectedBranch,
+                  'text-gray-900': !error
                 }"
               >
-                <option class="text-gray-500" value="">{{ t('select_branch') }}</option>
+                {{ t('branch_register') }}
+              </label>
+
+              <select
+                v-model="selectedBranch"
+                class="bg-gray-50 border border-gray-300 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'text-gray-500': selectedBranch == null || selectedBranch === '',
+                  'text-red-500 border border-red-500 ': (selectedBranch == null || selectedBranch === '') && error,
+                  'text-gray-900 text-sm border border-green-500 ': selectedBranch != null && selectedBranch !== ''
+                }"
+              >
+                <option class="font-medium" value="">{{ t('select_branch') }}</option>
                 <option
                   class="text-sm"
                   v-for="branch in branches"
                   :key="branch.id"
-                  :value="branch.id"
+                  :value="branch.branch_id"
                 >
                   {{ branch.name }}
                 </option>
               </select>
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !cif,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('account_number_cif') }}
               </label>
               <input
                 type="text"
+                v-model="cif"
                 :placeholder="t('enter_cif')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': cif !== ''
+                }"
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !fullName,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('full_name') }}
               </label>
               <input
                 type="text"
+                v-model="fullName"
                 :placeholder="$t('enter_full_name')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': fullName !== ''
+                }"
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !email,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('email') }}
               </label>
               <input
                 type="email"
+                v-model="email"
                 :placeholder="t('enter_email')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': email !== ''
+                }"
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !tel,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('tel') }}
               </label>
               <input
                 type="text"
+                v-model="tel"
                 :placeholder="t('enter_tel')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': tel !== ''
+                }"
               />
             </div>
-            <div class="flex justif-start text-red-500">
+            <div class="flex justif-start text-primary">
               <p class="bg-gray-100 py-1 px-2 rounded-lg mb-2 mt-2">{{ t('login_information') }}</p>
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[300px]">
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !userName,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('user_name') }}
               </label>
               <input
                 type="text"
+                v-model="userName"
                 :placeholder="t('enter_name')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': userName !== ''
+                }"
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block font-medium text-gray-900 w-[300px]">
+              <label
+                class="block font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !password,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('password') }}
               </label>
               <input
                 type="password"
+                v-model="password"
                 :placeholder="t('enter_password')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': password !== ''
+                }"
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block font-medium text-gray-900 w-[300px]">
+              <label
+                class="block font-medium text-gray-900 w-[300px]"
+                :class="{
+                  'text-red-500': error && !confirmPassword,
+                  'text-gray-900': !error
+                }"
+              >
                 {{ t('confirm_password') }}
               </label>
               <input
                 type="password"
+                v-model="confirmPassword"
                 :placeholder="t('enter_confirm_password')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block py-1 px-3 placeholder-gray-500 w-full"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                :class="{
+                  'placeholder-gray-500': !error,
+                  'placeholder-red-500 border border-red-500': error,
+                  'border border-green-500': confirmPassword !== ''
+                }"
               />
             </div>
           </div>
           <div class="flex mt-10 gap-x-4 justify-end">
             <button
-              @click.prevent="handleUpdate"
-              class="w-[20%] flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              @click="handleUpdate"
+              class="w-[20%] flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700"
             >
               {{ t('register') }}
             </button>
