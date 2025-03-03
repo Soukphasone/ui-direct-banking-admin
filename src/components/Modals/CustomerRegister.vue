@@ -2,9 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showAlert } from '@/stores/alert'
-import { defineProps } from 'vue'
 import { useOpenModalStore } from '@/stores/modal'
-import { te } from 'date-fns/locale'
 
 const { t } = useI18n()
 const isOpen = useOpenModalStore()
@@ -17,6 +15,7 @@ const userName = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const error = ref(false)
+const checkMail = ref(false)
 const branches = ref([
   { id: 1, branch_id: '010', name: 'LAO - VIET BANK, HEAD OFFICE' },
   { id: 2, branch_id: '011', name: 'SALAKHAM BANKING UNIT' },
@@ -56,7 +55,12 @@ const clearFrom = () => {
   isOpen.isOpenModalEdit = false
   error.value = false
 }
-const handleUpdate = () => {
+const validateEmail = () => {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/
+  checkMail.value = !emailPattern.test(email.value)
+  console.log(checkMail.value)
+}
+const handleRegister = () => {
   if (
     !cif.value ||
     !selectedBranch.value ||
@@ -68,23 +72,35 @@ const handleUpdate = () => {
     !confirmPassword.value
   ) {
     error.value = true
+    checkMail.value = true
     return
   }
-  clearFrom()
-  showAlert(
-    t('update'),
-    t('success'),
-    'success',
-    'Yes',
-    'Cancel',
-    'green',
-    '#28a745',
-    '#dc3545',
-    false,
-    false,
-    2000
-  )
+  if (
+   password.value != confirmPassword.value
+  ) {
+    error.value = true
+    return
+  }
+  // if (checkMail.value === false) {
+  //   console.log('errMail')
+  //   return
+  // }
+  // clearFrom()
+  // showAlert(
+  //   t('update'),
+  //   t('success'),
+  //   'success',
+  //   'Yes',
+  //   'Cancel',
+  //   'green',
+  //   '#28a745',
+  //   '#dc3545',
+  //   false,
+  //   false,
+  //   2000
+  // )
 }
+
 const closeOnEscape = (event) => {
   if (event.key === 'Escape') {
     isOpen.isOpenModalEdit = false
@@ -135,7 +151,7 @@ onBeforeUnmount(() => {
                 class="block mb-1 font-medium text-gray-900 w-[300px]"
                 :class="{
                   'text-red-500': error && !selectedBranch,
-                  'text-gray-900': !error
+                  'text-green-600 font-medium': selectedBranch != null && selectedBranch !== ''
                 }"
               >
                 {{ t('branch_register') }}
@@ -143,11 +159,12 @@ onBeforeUnmount(() => {
 
               <select
                 v-model="selectedBranch"
-                class="bg-gray-50 border border-gray-300 rounded-lg block py-1 px-3 w-full outline-none"
+                class="bg-gray-50 border border-gray-300 text-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'text-gray-500': selectedBranch == null || selectedBranch === '',
-                  'text-red-500 border border-red-500 ': (selectedBranch == null || selectedBranch === '') && error,
-                  'text-gray-900 text-sm border border-green-500 ': selectedBranch != null && selectedBranch !== ''
+                  'text-red-500 border border-red-500 ':
+                    (selectedBranch == null || selectedBranch === '') && error,
+                  'text-gray-900 text-sm border border-green-500 ':
+                    selectedBranch != null && selectedBranch !== ''
                 }"
               >
                 <option class="font-medium" value="">{{ t('select_branch') }}</option>
@@ -163,10 +180,10 @@ onBeforeUnmount(() => {
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                class="block mb-1 text-gray-900 w-[300px]"
                 :class="{
-                  'text-red-500': error && !cif,
-                  'text-gray-900': !error
+                  'text-red-500': error && cif.length != 9,
+                  'text-green-600 font-medium': cif != null && cif !== '' && cif.length === 9
                 }"
               >
                 {{ t('account_number_cif') }}
@@ -175,20 +192,20 @@ onBeforeUnmount(() => {
                 type="text"
                 v-model="cif"
                 :placeholder="t('enter_cif')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                class="bg-gray-50 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': cif !== ''
+                  'placeholder-red-500 border border-red-500 text-red-500':
+                    error && cif.length != 9,
+                  'border border-green-500': cif != null && cif !== '' && cif.length === 9
                 }"
               />
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                class="block mb-1 text-gray-900 w-[300px]"
                 :class="{
                   'text-red-500': error && !fullName,
-                  'text-gray-900': !error
+                  'text-green-600 font-medium': fullName != null && fullName !== ''
                 }"
               >
                 {{ t('full_name') }}
@@ -197,20 +214,19 @@ onBeforeUnmount(() => {
                 type="text"
                 v-model="fullName"
                 :placeholder="$t('enter_full_name')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                class="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': fullName !== ''
+                  'placeholder-red-500 border border-red-500': error && !fullName,
+                  'border border-green-500': fullName != null && fullName !== ''
                 }"
               />
             </div>
-            <div class="flex gap-3 items-center">
+            <div class="flex gap-3 text-gray-900 items-center">
               <label
-                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                class="block mb-1 w-[300px]"
                 :class="{
-                  'text-red-500': error && !email,
-                  'text-gray-900': !error
+                  'text-red-500': checkMail,
+                  'text-green-600 font-medium': !checkMail && email != null && email !== ''
                 }"
               >
                 {{ t('email') }}
@@ -218,21 +234,21 @@ onBeforeUnmount(() => {
               <input
                 type="email"
                 v-model="email"
-                :placeholder="t('enter_email')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                @input="validateEmail"
+                placeholder="Enter your email"
+                class="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': email !== ''
+                  'placeholder-red-500 border border-red-500': checkMail,
+                  'border border-green-500': email !== '' && !checkMail
                 }"
               />
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                class="block mb-1 text-gray-900 w-[300px]"
                 :class="{
-                  'text-red-500': error && !tel,
-                  'text-gray-900': !error
+                  'text-red-500': error && tel.length < 8,
+                  'text-green-600 font-medium': tel != null && tel !== '' && tel.length >= 8
                 }"
               >
                 {{ t('tel') }}
@@ -243,9 +259,9 @@ onBeforeUnmount(() => {
                 :placeholder="t('enter_tel')"
                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': tel !== ''
+                  'placeholder-red-500 border border-red-500 text-red-500':
+                    error && tel.length < 8,
+                  'border border-green-500': cif != null && tel !== '' && tel.length >= 8
                 }"
               />
             </div>
@@ -254,10 +270,10 @@ onBeforeUnmount(() => {
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block mb-1 font-medium text-gray-900 w-[300px]"
+                class="block mb-1 text-gray-900 w-[300px]"
                 :class="{
                   'text-red-500': error && !userName,
-                  'text-gray-900': !error
+                  'text-green-600 font-medium': userName != null && userName !== ''
                 }"
               >
                 {{ t('user_name') }}
@@ -268,18 +284,17 @@ onBeforeUnmount(() => {
                 :placeholder="t('enter_name')"
                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': userName !== ''
+                  'placeholder-red-500 border border-red-500': error && !userName,
+                  'border border-green-500': userName != null && userName !== ''
                 }"
               />
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block font-medium text-gray-900 w-[300px]"
+                class="block text-gray-900 w-[300px]"
                 :class="{
                   'text-red-500': error && !password,
-                  'text-gray-900': !error
+                  'text-green-600 font-medium': password != null && password !== ''
                 }"
               >
                 {{ t('password') }}
@@ -290,18 +305,17 @@ onBeforeUnmount(() => {
                 :placeholder="t('enter_password')"
                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': password !== ''
+                  'placeholder-red-500 border border-red-500': error && !password,
+                  'border border-green-500': password != null && password !== ''
                 }"
               />
             </div>
             <div class="flex gap-3 items-center">
               <label
-                class="block font-medium text-gray-900 w-[300px]"
+                class="block text-gray-900 w-[300px]"
                 :class="{
                   'text-red-500': error && !confirmPassword,
-                  'text-gray-900': !error
+                  'text-green-600 font-medium': confirmPassword != null && confirmPassword !== ''
                 }"
               >
                 {{ t('confirm_password') }}
@@ -312,16 +326,15 @@ onBeforeUnmount(() => {
                 :placeholder="t('enter_confirm_password')"
                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-gray-500': !error,
-                  'placeholder-red-500 border border-red-500': error,
-                  'border border-green-500': confirmPassword !== ''
+                  'placeholder-red-500 border border-red-500': error && !confirmPassword,
+                  'border border-green-500': confirmPassword != null && confirmPassword !== ''
                 }"
               />
             </div>
           </div>
           <div class="flex mt-10 gap-x-4 justify-end">
             <button
-              @click="handleUpdate"
+              @click="handleRegister"
               class="w-[20%] flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700"
             >
               {{ t('register') }}
