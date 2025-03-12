@@ -9,9 +9,7 @@ const { userName, passWord, errorMessage, isLoading, isShowEye, handleShowEye, h
 <template>
   <DefaultLayout>
     <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0 h-screen">
-      <div
-        class="w-full bg-white rounded-2xl shadow-lg md:mt-0 sm:max-w-md xl:p-0"
-      >
+      <div class="w-full bg-white rounded-2xl shadow-lg md:mt-0 sm:max-w-md xl:p-0">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
           <div class="flex justify-center">
             <img src="@/assets/images/logo/LVB.png" alt="loginLogo" class="w-50" />
@@ -41,8 +39,6 @@ const { userName, passWord, errorMessage, isLoading, isShowEye, handleShowEye, h
                 <input
                   v-model="passWord"
                   :type="isShowEye ? 'text' : 'password'"
-                  name="password"
-                  id="password"
                   placeholder="••••••••"
                   required
                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -54,6 +50,7 @@ const { userName, passWord, errorMessage, isLoading, isShowEye, handleShowEye, h
                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400"
                 >
                   <span v-if="isShowEye">
+                    <!-- <img src="@/assets/images/icon/icons8-hide-48.png" alt="" class="w-6.5" /> -->
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -73,6 +70,7 @@ const { userName, passWord, errorMessage, isLoading, isShowEye, handleShowEye, h
                     </svg>
                   </span>
                   <span v-else>
+                    <img src="@/assets/images/icon/icons8-eye-48.png" alt="" class="w-7" />
                     <svg
                       viewBox="'0 0 24 24'"
                       fill="currentColor"

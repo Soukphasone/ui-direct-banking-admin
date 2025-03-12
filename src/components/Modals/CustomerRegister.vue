@@ -16,6 +16,10 @@ const password = ref('')
 const confirmPassword = ref('')
 const error = ref(false)
 const checkMail = ref(false)
+const checkPassword = ref(false)
+const errorMessage = ref('')
+const isShowEyePass = ref(false)
+const isShowEyeConPass = ref(false)
 const branches = ref([
   { id: 1, branch_id: '010', name: 'LAO - VIET BANK, HEAD OFFICE' },
   { id: 2, branch_id: '011', name: 'SALAKHAM BANKING UNIT' },
@@ -54,51 +58,76 @@ const clearFrom = () => {
   confirmPassword.value = ''
   isOpen.isOpenModalEdit = false
   error.value = false
+  errorMessage.value = ''
+}
+const handleShowEye = (value) => {
+  if (value === '1') {
+    isShowEyePass.value = !isShowEyePass.value
+  } else if (value === '2') {
+    isShowEyeConPass.value = !isShowEyeConPass.value
+  }
 }
 const validateEmail = () => {
   const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/
   checkMail.value = !emailPattern.test(email.value)
-  console.log(checkMail.value)
+}
+const validatePassword = () => {
+  const checkPass = password.value === confirmPassword.value
+  checkPassword.value = !checkPass
 }
 const handleRegister = () => {
-  if (
-    !cif.value ||
-    !selectedBranch.value ||
-    !fullName.value ||
-    !email.value ||
-    !tel.value ||
-    !userName.value ||
-    !password.value ||
-    !confirmPassword.value
-  ) {
+  if (!cif.value || !selectedBranch.value || !fullName.value || !tel.value || !userName.value) {
+    if (!email.value) {
+      checkMail.value = true
+    }
+    if (!password.value) {
+      checkPassword.value = true
+    }
+    if (!confirmPassword.value) {
+      checkPassword.value = true
+    }
     error.value = true
-    checkMail.value = true
+    errorMessage.value = 'Plase check again'
     return
-  }
-  if (
-   password.value != confirmPassword.value
-  ) {
+  } else if (cif.value.length < 9) {
     error.value = true
+    errorMessage.value = 'Plaese check CIF'
+    return
+  } else if (checkMail.value === true) {
+    checkMail.value = true
+    errorMessage.value = 'Error Mail'
+    return
+  } else if (tel.value.length < 8) {
+    error.value = true
+    errorMessage.value = 'Check Number Phone'
+    return
+  } else if (!password.value || !confirmPassword.value) {
+    checkPassword.value = true
+    errorMessage.value = 'Plase check again'
+    return
+  } else if (password.value != confirmPassword.value) {
+    checkPassword.value = true
+    errorMessage.value = 'Password Not Match'
     return
   }
   // if (checkMail.value === false) {
   //   console.log('errMail')
   //   return
   // }
-  // clearFrom()
-  // showAlert(
-  //   t('update'),
-  //   t('success'),
-  //   'success',
-  //   'Yes',
-  //   'Cancel',
-  //   'green',
-  //   '#28a745',
-  //   '#dc3545',
-  //   false,
-  //   false,
-  //   2000
-  // )
+  clearFrom()
+  showAlert(
+    t('update'),
+    t('success'),
+    'success',
+    'Yes',
+    'Cancel',
+    'green',
+    '#28a745',
+    '#dc3545',
+    false,
+    false,
+    2000
+  )
 }
 
 const closeOnEscape = (event) => {
@@ -123,7 +152,25 @@ onBeforeUnmount(() => {
       :class="{ hidden: isOpen.isOpenModalEdit, block: !isOpen.isOpenModalEdit }"
       @click="isOpen.isOpenModalEdit = true"
     >
-      {{ t('register_here') }}
+      <span class="flex gap-2">
+        <svg
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M19 8v6"></path>
+          <path d="M16 11h6"></path>
+        </svg>
+        {{ t('register_here') }}
+      </span>
     </button>
     <transition name="fade-scale">
       <div
@@ -136,7 +183,7 @@ onBeforeUnmount(() => {
           <div class="flex justify-end w-full">
             <button
               @click="isOpen.isOpenModalEdit = false"
-              class="text-center text-whiter text-2xl font-bold bg-red-400 w-10 h-10 py-1 px-2 rounded-max hover:bg-red-500"
+              class="text-center text-whiter text-2xl font-bold font-lao bg-red-400 w-10 h-10 py-1 px-2 rounded-max hover:bg-red-500"
             >
               x
             </button>
@@ -235,7 +282,7 @@ onBeforeUnmount(() => {
                 type="email"
                 v-model="email"
                 @input="validateEmail"
-                placeholder="Enter your email"
+                :placeholder="$t('enter_email')"
                 class="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
                   'placeholder-red-500 border border-red-500': checkMail,
@@ -257,16 +304,17 @@ onBeforeUnmount(() => {
                 type="text"
                 v-model="tel"
                 :placeholder="t('enter_tel')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                class="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-red-500 border border-red-500 text-red-500':
-                    error && tel.length < 8,
+                  'placeholder-red-500 border border-red-500 text-red-500': error && tel.length < 8,
                   'border border-green-500': cif != null && tel !== '' && tel.length >= 8
                 }"
               />
             </div>
-            <div class="flex justif-start text-primary">
-              <p class="bg-gray-100 py-1 px-2 rounded-lg mb-2 mt-2">{{ t('login_information') }}</p>
+            <div class="flex justify-center items-center text-primary text-center">
+              <span class="text-lg mt-2 mb-2">
+                {{ t('login_information') }}
+              </span>
             </div>
             <div class="flex gap-3 items-center">
               <label
@@ -282,7 +330,7 @@ onBeforeUnmount(() => {
                 type="text"
                 v-model="userName"
                 :placeholder="t('enter_name')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+                class="bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
                   'placeholder-red-500 border border-red-500': error && !userName,
                   'border border-green-500': userName != null && userName !== ''
@@ -293,44 +341,157 @@ onBeforeUnmount(() => {
               <label
                 class="block text-gray-900 w-[300px]"
                 :class="{
-                  'text-red-500': error && !password,
-                  'text-green-600 font-medium': password != null && password !== ''
+                  'text-red-500': checkPassword,
+                  'text-green-600 font-medium':
+                    password != null && password !== '' && !checkPassword
                 }"
               >
                 {{ t('password') }}
               </label>
-              <input
-                type="password"
-                v-model="password"
-                :placeholder="t('enter_password')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+              <div
+                class="relative bg-gray-50 border border-gray-300 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-red-500 border border-red-500': error && !password,
-                  'border border-green-500': password != null && password !== ''
+                  'placeholder-red-500 border border-red-500': checkPassword,
+                  'border border-green-500': password != null && password !== '' && !checkPassword
                 }"
-              />
+              >
+                <input
+                  v-model="password"
+                  :type="isShowEyePass ? 'text' : 'password'"
+                  @input="validatePassword"
+                  :placeholder="t('enter_password')"
+                  class="bg-gray-50 text-gray-900 placeholder-gray-500 outline-none w-full"
+                  :class="{
+                    'placeholder-red-500': checkPassword
+                  }"
+                />
+                <button
+                  v-if="password"
+                  type="button"
+                  @click="handleShowEye('1')"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
+                >
+                  <span v-if="isShowEyePass">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      class="w-6 h-6 text-gray-700"
+                    >
+                      <path
+                        d="M12 4.5c-5 0-9.27 3.11-11 7.5 1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Zm0 12a4.5 4.5 0 1 1 4.5-4.5 4.5 4.5 0 0 1-4.5 4.5Z"
+                      />
+                      <path
+                        d="M3 3l18 18M12 12"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span v-else>
+                    <svg
+                      viewBox="'0 0 24 24'"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-6 h-6 text-gray-700"
+                    >
+                      <path
+                        d="M12 4C7 4 2.73 7.11 1 12c1.73 4.89 6 8 11 8s9.27-3.11 11-8c-1.73-4.89-6-8-11-8Zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6Zm0-10a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                      />
+                    </svg>
+                  </span>
+                </button>
+              </div>
             </div>
             <div class="flex gap-3 items-center">
               <label
                 class="block text-gray-900 w-[300px]"
                 :class="{
-                  'text-red-500': error && !confirmPassword,
-                  'text-green-600 font-medium': confirmPassword != null && confirmPassword !== ''
+                  'text-red-500': checkPassword,
+                  'text-green-600 font-medium':
+                    confirmPassword != null && confirmPassword !== '' && !checkPassword
                 }"
               >
                 {{ t('confirm_password') }}
               </label>
-              <input
-                type="password"
-                v-model="confirmPassword"
-                :placeholder="t('enter_confirm_password')"
-                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block py-1 px-3 w-full outline-none"
+              <div
+                class="relative bg-gray-50 border border-gray-300 rounded-lg block py-1 px-3 w-full outline-none"
                 :class="{
-                  'placeholder-red-500 border border-red-500': error && !confirmPassword,
-                  'border border-green-500': confirmPassword != null && confirmPassword !== ''
+                  'placeholder-red-500 border border-red-500': checkPassword,
+                  'border border-green-500':
+                    confirmPassword != null && confirmPassword !== '' && !checkPassword
                 }"
-              />
+              >
+                <input
+                  v-model="confirmPassword"
+                  :type="isShowEyeConPass ? 'text' : 'password'"
+                  @input="validatePassword"
+                  :placeholder="t('enter_confirm_password')"
+                  class="bg-gray-50 text-gray-900 placeholder-gray-500 outline-none w-full"
+                  :class="{
+                    'placeholder-red-500': checkPassword
+                  }"
+                />
+                <button
+                  v-if="confirmPassword"
+                  type="button"
+                  @click="handleShowEye('2')"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
+                >
+                  <span v-if="isShowEyeConPass">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      class="w-6 h-6 text-gray-700"
+                    >
+                      <path
+                        d="M12 4.5c-5 0-9.27 3.11-11 7.5 1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Zm0 12a4.5 4.5 0 1 1 4.5-4.5 4.5 4.5 0 0 1-4.5 4.5Z"
+                      />
+                      <path
+                        d="M3 3l18 18M12 12"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span v-else>
+                    <svg
+                      viewBox="'0 0 24 24'"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-6 h-6 text-gray-700"
+                    >
+                      <path
+                        d="M12 4C7 4 2.73 7.11 1 12c1.73 4.89 6 8 11 8s9.27-3.11 11-8c-1.73-4.89-6-8-11-8Zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6Zm0-10a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+                      />
+                    </svg>
+                  </span>
+                </button>
+              </div>
             </div>
+          </div>
+          <div
+            v-if="errorMessage"
+            class="flex justify-center items-center gap-2 font-medium mt-4 text-red-500 animate-pulse"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-5 h-5 text-red-500"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 2a1 1 0 0 1 .894.553l9 18A1 1 0 0 1 21 22H3a1 1 0 0 1-.894-1.447l9-18A1 1 0 0 1 12 2ZM11 8a1 1 0 0 1 2 0v5a1 1 0 0 1-2 0V8Zm1 9a1.25 1.25 0 1 1 0 2.5A1.25 1.25 0 0 1 12 17Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            {{ errorMessage }}
           </div>
           <div class="flex mt-10 gap-x-4 justify-end">
             <button
