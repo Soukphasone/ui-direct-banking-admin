@@ -101,5 +101,10 @@ export const vn = {
   try_again: 'Hãy thử lại nữa',
   cif_wrong:'Số tài khoản (CIF) sai',
   update:'Cập nhật',
-  register_here: 'Đăng ký tại đây'
+  register_here: 'Đăng ký tại đây',
+  password_more_6:'Mật khẩu phải có 6 chữ số trở lên',
+  please_check_again:'Hãy kiểm tra lại',
+  exit:'Ra',
+
+
 }

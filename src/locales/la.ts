@@ -53,7 +53,7 @@ export const la = {
   account_number_cif: 'ເລກບັນຊີ (CIF)',
   account_name: 'ຊື່ບັນຊີ',
   maker_id: 'ລະຫັດຜູ້ສ້າງ',
-  created_at: 'ວັນທີສ້າງ',
+  created_at: 'ວັນທີລົງທະບຽນ',
   authorize_status: 'ສະຖານະສິດ',
   description: 'ລາຍລະອຽດ',
   withdraw: 'ເງິນອອກ',
@@ -101,5 +101,9 @@ export const la = {
   try_again:'ກຸລຸນາລອງໃໝ່ອີກຄັ້ງ',
   cif_wrong:'ເລກບັນຊີ (CIF) ບໍ່ຖືກຕ້ອງ',
   update:'ອັບເດດ',
-  register_here: 'ລົງທະບຽນ ທີ່ນີ້'
+  register_here: 'ລົງທະບຽນ ທີ່ນີ້',
+  password_more_6:'ລະຫັດຜ່ານຕ້ອງມີ 6 ໂຕຂຶ້ນໄປ',
+  please_check_again:'ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບຖ້ວນ',
+  exit:'ອອກ',
+
 }

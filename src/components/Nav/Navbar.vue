@@ -190,6 +190,9 @@ const copyText = async () => {
                   <span class="mr-2" v-if="selectedAccount">{{
                     selectedAccount.ACCOUNT || 'ACCOUNT'
                   }}</span>
+                  <span class="mr-2" v-else>{{
+                  t('account')
+                  }}</span>
                   <div class="ml-33">
                     <svg
                       class="absolute top-1/2 -translate-y-1/2 fill-current"

@@ -114,6 +114,12 @@ const customerData = ref([
     unique_id: 'UID-0010'
   }
 ])
+const clearFrom = () => {
+  password.value = ''
+  confirmPassword.value = ''
+  isOpen.value = false
+  errorMessage.value = ''
+}
 const checkCustomer = () => {
   if (!cif.value) {
     return
@@ -146,18 +152,35 @@ const handleShowEye = (value) => {
   }
 }
 const validatePassword = () => {
-  const checkPass = password.value === confirmPassword.value
-  checkPassword.value = !checkPass
+  const _check1 = password.value === confirmPassword.value
+  const _check2 = password.value.length >= 6 || confirmPassword.value.length >= 6
+  checkPassword.value = !(_check1 && _check2)
 }
 const handleUpdatePassword = () => {
   if (!password.value || !confirmPassword.value) {
     checkPassword.value = true
     return
-  }
-  if (password.value !== confirmPassword.value) {
-    errorMessage.value = 'Password Not Match'
+  } else if (password.value.length < 6 || confirmPassword.value.length < 6) {
+    errorMessage.value = t('password_more_6')
+    return
+  } else if (password.value !== confirmPassword.value) {
+    errorMessage.value = t('passwords_do_not_match')
     return
   }
+  clearFrom()
+  showAlert(
+      t('change_password'),
+      t('success'),
+      'success',
+      'Yes',
+      'Cancel',
+      '#86e54c',
+      '#28a745', // Confirm button color (green)
+      '#dc3545',
+      false,
+      false,
+      2000
+    )
 }
 const closeOnEscape = (event) => {
   if (event.key === 'Escape') {

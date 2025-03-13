@@ -268,7 +268,7 @@ const toggleSelection = (item) => {
                 type="checkbox"
                 :checked="isAllSelected"
                 @change="toggleSelectAll"
-                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:outline-none"
               />
             </label>
           </th>
@@ -296,7 +296,7 @@ const toggleSelection = (item) => {
                 type="checkbox"
                 :checked="selectedItems.some((i) => i.customerID === item.customerID)"
                 @change="toggleSelection(item)"
-                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:outline-none"
               />
             </label>
           </td>

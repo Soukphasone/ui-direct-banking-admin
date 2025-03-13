@@ -55,7 +55,7 @@ export const en = {
   account_number_cif: 'Account Number (CIF)',
   account_name: 'Account Name',
   maker_id: 'Maker ID',
-  created_at: 'Created at',
+  created_at: 'Created Date',
   authorize_status: 'Authorize Status',
   description: 'Description',
   withdraw: 'Withdraw',
@@ -104,4 +104,7 @@ export const en = {
   cif_wrong: 'Wrong number account (CIF)',
   update: 'Update',
   register_here: 'Register Here',
+  password_more_6:'Password must be 6 digits or more',
+  please_check_again:'Please check again',
+  exit:'Exit',
 }

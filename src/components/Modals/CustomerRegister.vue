@@ -72,8 +72,9 @@ const validateEmail = () => {
   checkMail.value = !emailPattern.test(email.value)
 }
 const validatePassword = () => {
-  const checkPass = password.value === confirmPassword.value
-  checkPassword.value = !checkPass
+  const _check1 = password.value === confirmPassword.value
+  const _check2 = password.value.length >= 6 || confirmPassword.value.length >= 6
+  checkPassword.value = !(_check1 && _check2)
 }
 const handleRegister = () => {
   if (!cif.value || !selectedBranch.value || !fullName.value || !tel.value || !userName.value) {
@@ -105,9 +106,13 @@ const handleRegister = () => {
     checkPassword.value = true
     errorMessage.value = 'Plase check again'
     return
+  } else if (password.value.length < 6 || confirmPassword.value.length < 6) {
+    checkPassword.value = true
+    errorMessage.value = t('password_more_6')
+    return
   } else if (password.value != confirmPassword.value) {
     checkPassword.value = true
-    errorMessage.value = 'Password Not Match'
+    errorMessage.value = t('passwords_do_not_match')
     return
   }
   // if (checkMail.value === false) {
@@ -116,18 +121,18 @@ const handleRegister = () => {
   // }
   clearFrom()
   showAlert(
-    t('update'),
-    t('success'),
-    'success',
-    'Yes',
-    'Cancel',
-    'green',
-    '#28a745',
-    '#dc3545',
-    false,
-    false,
-    2000
-  )
+      t('register'),
+      t('success'),
+      'success',
+      'Yes',
+      'Cancel',
+      '#86e54c',
+      '#28a745', // Confirm button color (green)
+      '#dc3545',
+      false,
+      false,
+      2000
+    )
 }
 
 const closeOnEscape = (event) => {
