@@ -7,6 +7,7 @@ import { useSearchStore } from '@/stores/search'
 import CustomerEdit from '../Modals/CustomerEdit.vue'
 import { useOpenModalStore } from '@/stores/modal'
 import { showAlert } from '@/stores/alert'
+import {formatDate} from '@/service/Format.ts'
 
 const store = useSearchStore()
 const { t } = useI18n()
@@ -206,30 +207,32 @@ watch(
     searchQuery.value = setSearch
   }
 )
-// const fetchData = async () => {
-//   isLoading.value = true
-//   try {
-//     const body = {
-//       branch_id: 'ALL',
-//       cif: 'ALL'
-//     }
-//     const _report = await customerList(body)
-//     dataCustomerList.value = _report.data
-//     console.log('CustomerList', _report)
-//     if (_report.data === null) {
-//       dataCustomerList.value = []
-//     } else if (_report.data.length > 0) {
-//       dataCustomerList.value = _report.data
-//     }
-//   } finally {
-//     setTimeout(() => {
-//       isLoading.value = false
-//     }, 1000)
-//   }
-// }
-// onMounted(fetchData)
+const fetchData = async () => {
+  isLoading.value = true
+  try {
+    const body = {
+      branch_id: 'ALL',
+      cif: 'ALL'
+    }
+    const _customerList = await customerList(body)
+    if (_customerList.data.length > 0) {
+      const _customerListAuth = _customerList.data.filter(
+        (customer) => customer.AUTH_STATUS === 'A'
+      )
+      console.log('customer_A', _customerListAuth)
+      dataCustomerList.value = _customerListAuth
+    } else if (_customerList.data === null) {
+      dataCustomerList.value = []
+    }
+  } finally {
+    setTimeout(() => {
+      isLoading.value = false
+    }, 500)
+  }
+}
+onMounted(fetchData)
 const filteredItems = computed(() => {
-  return dataTest.value
+  return dataCustomerList.value
     .filter(
       (item) =>
         item.FULLNAME.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -240,7 +243,7 @@ const filteredItems = computed(() => {
     .slice(0, currentPage.value * itemsPerPage.value)
 })
 const canLoadMore = computed(() => {
-  return filteredItems.value.length < dataTest.value.length
+  return filteredItems.value.length < dataCustomerList.value.length
 })
 
 const loadMore = () => {
@@ -254,7 +257,7 @@ const loadMore = () => {
 <template>
   <div class="max-w-full overflow-x-auto border border-gray-200 bg-gray-50 rounded-2">
     <div class="flex flex-grow items-center justify-between py-3 px-4">
-      <div>Total users: {{ dataTest.length }}</div>
+      <div>Total customers: {{ dataCustomerList.length }}</div>
       <div class="flex items-center">
         <ul class="flex items-center gap-2">
           <li></li>
@@ -296,13 +299,13 @@ const loadMore = () => {
           <th class="p-2 px-4 font-medium text-black">{{ t('stt') }}</th>
           <th class="p-2 px-4 font-medium text-black">{{ t('account_number_cif') }}</th>
           <th class="p-2 px-4 font-medium text-black">{{ t('full_name') }}</th>
-          <th class="p-2 px-4 font-medium text-black">{{ t('created_at') }}</th>
           <th class="p-2 px-4 min-w-[150px] font-medium text-black">
             {{ t('email') }}
           </th>
           <th class="p-2 px-4 font-medium text-black">
             {{ t('tel') }}
           </th>
+          <th class="p-2 px-4 font-medium text-black">{{ t('created_at') }}</th>
           <th class="p-2 px-4 font-medium text-black text-center">
             {{ t('edit') }}
           </th>
@@ -322,23 +325,23 @@ const loadMore = () => {
           <td class="min-w-45 border-b">
             <p class="text-black text-center">{{ item.FULLNAME }}</p>
           </td>
-          <td class="min-w-45 border-b">
-            <p class="text-black text-center">{{ item.CREATE_DATE }}</p>
-          </td>
           <td class="min-w-45 items-center px-4 border-b">
             <p class="text-black text-center">{{ item.EMAIL }}</p>
           </td>
           <td class="items-center px-4 border-b">
             <p class="text-black text-center">{{ item.TEL }}</p>
           </td>
+          <td class="min-w-45 border-b">
+            <p class="text-black text-center">{{ formatDate(item.CREATE_DATE) }}</p>
+          </td>
           <td class="border-b">
             <div class="flex justify-center items-center text-center">
               <button
-                class="flex gap-2 focus:outline-none"
+                class="flex gap-2 text-gray-600 hover:text-blue-500 focus:outline-none"
                 @click.prevent="handleEdit(item)"
                 @keydown.esc="isOpenModal = false"
               >
-                <p class="text-sm">Edit</p>
+                <p class="text-sm">{{ t('edit') }}</p>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -346,7 +349,7 @@ const loadMore = () => {
                     viewBox="0 0 24 24"
                     stroke-width="2"
                     stroke="currentColor"
-                    class="w-5 h-5 hover:text-blue-500 cursor-pointer"
+                    class="w-5 h-5 cursor-pointer"
                   >
                     <path
                       stroke-linecap="round"
@@ -360,14 +363,14 @@ const loadMore = () => {
           </td>
           <td class="border-b">
             <div class="flex justify-center items-center text-center">
-              <button class="flex gap-2" @click.prevent="handleDelete">
-                <p class="text-sm">Delete</p>
+              <button class="flex gap-2 text-red-500 hover:text-red-700 focus:outline-none" @click.prevent="handleDelete">
+                <p class="text-sm">{{ t('delete') }}</p>
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    class="w-6 h-6 text-red-500 hover:text-red-700 transition"
+                    class="w-6 h-6 transition"
                   >
                     <path
                       fill-rule="evenodd"

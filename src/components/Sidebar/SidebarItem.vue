@@ -28,15 +28,19 @@ const handleItemClick = async () => {
       }"
     >
       <span v-html="item.icon"></span>
-      <!-- <div v-if="item.label === 'Home'" class="px-4">
+      <div v-if="item.label === 'Home'" class="px-4">
         {{ $t('home') }}
-      </div> -->
-      <div v-if="item.label === 'Statement'" class="px-4">
-        {{ $t('statement') }}
       </div>
-      <div v-else class="px-4">
-        {{ item.label }}
+      <div v-else-if="item.label === 'Customer Account'" class="px-4">
+        {{ $t('customer_account') }}
       </div>
+      <div v-else-if="item.label === 'Report Customer List'" class="px-4">
+        {{ $t('report_customer_list') }}
+      </div>
+      <div v-else-if="item.label === 'Admin'" class="px-4">
+        {{ $t('admin') }}
+      </div>
+
 
       <svg
         v-if="item.children"

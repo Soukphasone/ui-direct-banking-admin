@@ -4,16 +4,19 @@ import { useI18n } from 'vue-i18n'
 import { customerList } from '@/service/GetPostAPI'
 import Loading from '@/components/Loading/Loading.vue'
 import { useSearchStore } from '@/stores/search'
+import { formatDate } from '@/service/Format.ts'
+import { currentLanguage } from '@/i18n'
+import { branches, branchesLao } from '@/stores/branchBankList'
 
-const store = useSearchStore()
 const { t } = useI18n()
-const dataCustomerList = ref([])
+const store = useSearchStore()
+const check = ref(currentLanguage.value)
+const dataCustomerListAuth = ref([])
 const searchQuery = ref('')
 const isLoading = ref(false)
 const isLoadingMore = ref(false)
-const itemsPerPage = ref(10) // Number of items to load per page
+const itemsPerPage = ref(20) // Number of items to load per page
 const currentPage = ref(1)
-const isChecked = ref(false)
 const dataTest = ref([
   {
     branch: 'B001',
@@ -116,55 +119,69 @@ const dataTest = ref([
     Authorize_status: 'N'
   }
 ])
-const toggleCheck = (index) => {
-  isChecked.value = !isChecked.value
-  if (isChecked.value === true) {
-    console.log('CheckBox:', index)
-  } else {
-    console.log('CheckBox:', 'None')
-  }
-}
+
 watch(
   () => store.message,
   (setSearch) => {
     searchQuery.value = setSearch
   }
 )
-// const fetchData = async () => {
-//   isLoading.value = true
-//   try {
-//     const body = {
-//       branch_id: 'ALL',
-//       cif: 'ALL'
-//     }
-//     const _report = await customerList(body)
-//     dataCustomerList.value = _report.data
-//     console.log('CustomerList', _report)
-//     if (_report.data === null) {
-//       dataCustomerList.value = []
-//     } else if (_report.data.length > 0) {
-//       dataCustomerList.value = _report.data
-//     }
-//   } finally {
-//     setTimeout(() => {
-//       isLoading.value = false
-//     }, 1000)
-//   }
-// }
-// onMounted(fetchData)
+watch(currentLanguage, (newLanguage) => {
+  check.value = newLanguage
+})
+const fetchData = async () => {
+  isLoading.value = true
+  try {
+    const body = {
+      branch_id: 'ALL',
+      cif: 'ALL'
+    }
+    const _customerList = await customerList(body)
+    console.log()
+    if (_customerList.data.length > 0) {
+      const _customerListAuth = _customerList.data.filter(
+        (customer) => customer.AUTH_STATUS === 'U'
+      )
+      console.log('Authorize user:', _customerListAuth)
+      dataCustomerListAuth.value = _customerListAuth
+    } else if (_customerList.data === null) {
+      dataCustomerListAuth.value = []
+    }
+  } finally {
+    setTimeout(() => {
+      isLoading.value = false
+    }, 500)
+  }
+}
+const fetchAuthorizeCustomer = async () => {
+  isLoading.value = true
+  try {
+    const body = {
+      id: 1108,
+      auth_user: 'BBQ'
+    }
+    const _authorize = await authorizeCustomer(body)
+    console.log('Auhtorize', _authorize)
+  } finally {
+    setTimeout(() => {
+      isLoading.value = false
+    }, 500)
+  }
+}
+onMounted(fetchData)
 const filteredItems = computed(() => {
-  return dataTest.value
+  return dataCustomerListAuth.value
     .filter(
       (item) =>
-        item.customerID.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        item.branch.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        item.userName.toLowerCase().includes(searchQuery.value.toLowerCase())
+        item.CIF.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        item.BRANCH_ID.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        item.FULLNAME.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        item.DES.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
     .slice(0, currentPage.value * itemsPerPage.value)
 })
 const canLoadMore = computed(() => {
-  return filteredItems.value.length < dataTest.value.length
+  return filteredItems.value.length < dataCustomerListAuth.value.length
 })
 
 const loadMore = () => {
@@ -172,25 +189,27 @@ const loadMore = () => {
   setTimeout(() => {
     isLoadingMore.value = false
     currentPage.value++
-  }, 1000)
+  }, 500)
 }
 const selectedItems = ref([])
 
 // Computed property to check if all are selected
-const isAllSelected = computed(() => selectedItems.value.length === dataTest.value.length)
+const isAllSelected = computed(
+  () => selectedItems.value.length === dataCustomerListAuth.value.length
+)
 
 // Toggle Select All
 const toggleSelectAll = () => {
   if (isAllSelected.value) {
     selectedItems.value = []
   } else {
-    selectedItems.value = [...dataTest.value]
+    selectedItems.value = [...dataCustomerListAuth.value]
   }
 }
 
 // Toggle individual checkbox
 const toggleSelection = (item) => {
-  const index = selectedItems.value.findIndex((i) => i.customerID === item.customerID)
+  const index = selectedItems.value.findIndex((i) => i.CIF === item.CIF)
   if (index !== -1) {
     selectedItems.value.splice(index, 1)
   } else {
@@ -222,11 +241,29 @@ const toggleSelection = (item) => {
   </div> -->
   <div class="max-w-full overflow-x-auto border border-gray-200 bg-gray-50 rounded-2">
     <div class="flex flex-grow items-center justify-between py-3 px-4">
-      <div>Total users: {{ dataTest.length }}</div>
+      <div>Total users: {{ dataCustomerListAuth.length }}</div>
       <div>{{ selectedItems.length }}</div>
       <div class="flex items-center">
         <ul class="flex items-center gap-2">
-          <li></li>
+          <li>
+            <button
+              class="flex items-center border border-gray-200 bg-whiter hover:bg-gray-100 py-0.5 px-2 text-black rounded-lg"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-6 h-6 text-green-500"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12 12a4 4 0 100-8 4 4 0 000 8zm6.93 3.93a1 1 0 00-1.41 0l-2.82 2.83-1.41-1.42a1 1 0 00-1.41 1.42l2.12 2.12a1 1 0 001.41 0l3.53-3.54a1 1 0 000-1.41zM4 20a8 8 0 0114.45-4.68 1 1 0 11-1.7 1A6 6 0 004 20z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ t('authorize') }}
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -239,7 +276,7 @@ const toggleSelection = (item) => {
       </div>
     </div>
     <div
-      v-else-if="!isLoading && dataTest.length <= 0"
+      v-else-if="!isLoading && dataCustomerListAuth.length <= 0"
       class="flex flex-col justify-center items-center bg-gray-100 min-h-screen border-t"
     >
       <div class="flex flex-col items-center justify-center mb-60">
@@ -282,10 +319,6 @@ const toggleSelection = (item) => {
           <th class="p-2 px-4 min-w-[150px] font-medium text-black">
             {{ t('description') }}
           </th>
-
-          <th class="p-2 px-4 min-w-[150px] font-medium text-black">
-            {{ t('authorize_status') }}
-          </th>
         </tr>
       </thead>
       <tbody>
@@ -294,7 +327,7 @@ const toggleSelection = (item) => {
             <label class="flex items-center justify-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                :checked="selectedItems.some((i) => i.customerID === item.customerID)"
+                :checked="selectedItems.some((i) => i.CIF === item.CIF)"
                 @change="toggleSelection(item)"
                 class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:outline-none"
               />
@@ -304,28 +337,31 @@ const toggleSelection = (item) => {
             <p class="text-black text-center">{{ index + 1 }}</p>
           </td>
           <td class="p-2 border-b">
-            <p class="text-black text-center">{{ item.branch }}</p>
+            <span
+              class="text-black text-center"
+              v-for="branch_name in check === 'la' ? branchesLao : branches"
+              :key="branch_name.branch_id"
+            >
+              <p v-if="branch_name.branch_id === item.BRANCH_ID">{{ branch_name.name }}</p>
+            </span>
           </td>
           <td class="p-2 border-b">
-            <p class="text-black text-center">{{ item.customerID }}</p>
+            <p class="text-black text-center">{{ item.CIF }}</p>
           </td>
           <td class="p-2 border-b">
-            <p class="text-black text-center">{{ item.userName }}</p>
+            <p class="text-black text-center">{{ item.CIF }}</p>
           </td>
           <td class="min-w-45 border-b">
             <p class="text-black text-center">{{ item.FULLNAME }}</p>
           </td>
           <td class="min-w-45 border-b">
-            <p class="text-black text-center">{{ item.create_date }}</p>
+            <p class="text-black text-center">{{ formatDate(item.CREATE_DATE) }}</p>
           </td>
           <td class="min-w-45 border-b">
-            <p class="text-black text-center">{{ item.makerID }}</p>
+            <p class="text-black text-center">{{ item.USER_CREATE }}</p>
           </td>
           <td class="items-center px-4 border-b">
-            <p class="text-black text-center">{{ item.description }}</p>
-          </td>
-          <td class="items-center px-4 border-b">
-            <p class="text-black text-center">{{ item.Authorize_status }}</p>
+            <p class="text-black text-center">{{ item.DES }}</p>
           </td>
         </tr>
       </tbody>

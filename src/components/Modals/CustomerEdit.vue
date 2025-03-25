@@ -4,9 +4,10 @@ import { useI18n } from 'vue-i18n'
 import { showAlert } from '@/stores/alert'
 import { defineProps, defineEmits } from 'vue'
 import { useOpenModalStore } from '@/stores/modal'
+import { formatDate } from '@/service/Format.ts'
 
 const props = defineProps({
-  data: Object // Define the expected type of the prop
+  data: Object
 })
 const emit = defineEmits(['update:data'])
 const { t } = useI18n()
@@ -31,7 +32,7 @@ const validateFullName = () => {
   checkFullName.value = !fullName.value
 }
 const validateEmail = () => {
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   checkMail.value = !emailPattern.test(email.value)
 }
 const validateTel = () => {
@@ -62,18 +63,18 @@ const handleUpdate = () => {
 
   isOpen.isOpenModalEdit = false
   showAlert(
-      t('update'),
-      t('success'),
-      'success',
-      'Yes',
-      'Cancel',
-      '#86e54c',
-      '#28a745', // Confirm button color (green)
-      '#dc3545',
-      false,
-      false,
-      2000
-    )
+    t('update'),
+    t('success'),
+    'success',
+    'Yes',
+    'Cancel',
+    '#86e54c',
+    '#28a745', // Confirm button color (green)
+    '#dc3545',
+    false,
+    false,
+    2000
+  )
 }
 
 const closeOnEscape = (event) => {
@@ -142,8 +143,9 @@ onBeforeUnmount(() => {
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[400px]"
-              :class="{ 'text-red-500': checkMail }"
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[400px]"
+                :class="{ 'text-red-500': checkMail }"
               >
                 {{ t('email') }}
               </label>
@@ -159,8 +161,9 @@ onBeforeUnmount(() => {
               />
             </div>
             <div class="flex gap-3 items-center">
-              <label class="block mb-1 font-medium text-gray-900 w-[400px]"
-              :class="{ 'text-red-500': checkTel }"
+              <label
+                class="block mb-1 font-medium text-gray-900 w-[400px]"
+                :class="{ 'text-red-500': checkTel }"
               >
                 {{ t('tel') }}
               </label>
@@ -180,7 +183,7 @@ onBeforeUnmount(() => {
                 {{ t('created_at') }}
               </label>
               <span class="bg-gray-100 text-red-500 rounded-lg p-2.5 w-full">
-                {{ createdDate }}
+                {{ formatDate(createdDate) }}
               </span>
             </div>
             <div class="">

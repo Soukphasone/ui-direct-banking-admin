@@ -23,12 +23,7 @@ export default function useLoginPage() {
         username: userName.value,
         password: passWord.value
       }
-      const body = {
-        data: encryptData(JSON.stringify(userLogin))
-      }
-
       const _dataLogin = await Login(userLogin)
-      console.log("Data Login:", _dataLogin)
       if (_dataLogin?.data?.TOKEN) {
         localStorage.setItem('authToken', _dataLogin.data.TOKEN)
         localStorage.setItem('userData', JSON.stringify(_dataLogin.data.USER_DATA))

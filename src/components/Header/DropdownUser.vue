@@ -6,7 +6,8 @@ import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const userData = JSON.parse(localStorage.getItem('userData'))
-const fullName = userData?.FULLNAME
+console.log("User", userData);
+const fullName = userData?.EMPNAME
 const router = useRouter()
 
 const logOut = () => {
@@ -28,6 +29,7 @@ const logOut = () => {
       localStorage.removeItem('dataReport')
       localStorage.removeItem('dateRange')
       localStorage.removeItem('page')
+      localStorage.removeItem('ActiveTab')
       router.push(PATH.LOGIN)
     }
   })
@@ -38,11 +40,11 @@ const logOut = () => {
     <div class="flex items-center">
       <div v-if="userData" class="block text-black text-left text-user">
         <p>{{ fullName }}</p>
-        <p>Customer</p>
+        <p class="text-lg">{{ $t('admin') }}</p>
       </div>
       <div v-else class="block text-lg text-black text-left">
         <p>{{ $t('hello') }}</p>
-        <p>Customer</p>
+        <p class="text-lg">{{ $t('admin') }}</p>
       </div>
       <button
         v-if="userData"

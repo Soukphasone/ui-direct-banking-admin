@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
-import CalendarView from '@/views/CalendarView.vue'
 import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import Home from '@/views/Dashboard/Home.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'

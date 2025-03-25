@@ -448,12 +448,12 @@ watch(dataReport, (newData) => {
       <tbody>
         <tr v-for="(item, index) in filteredItems" :key="index">
           <td class="px-1 min-w-45 border-b">
-            <p class="text-black text-center">{{ formatDateTime(item.TRN_DATE) }}</p>
+            <!-- <p class="text-black text-center">{{ formatDateTime(item.TRN_DATE) }}</p> -->
           </td>
           <td class="py-3 px-4 border-b text-center">
-            <p class="text-black">{{ item.TRN_REF_NO }}</p>
+            <!-- <p class="text-black">{{ item.TRN_REF_NO }}</p> -->
           </td>
-          <td class="items-center px-4 border-b">
+          <!-- <td class="items-center px-4 border-b">
             <div v-if="item.WITHDRAW === '0'" class="flex gap-2 uppercase">
               <img
                 src="/src/assets/images/logo/receive.png"
@@ -466,8 +466,8 @@ watch(dataReport, (newData) => {
               <img src="/src/assets/images/logo/sent.png" alt="sent" class="w-5 h-5 rounded-max" />
               <p class="text-red-500">{{ t('withdraw') }}</p>
             </div>
-          </td>
-          <td class="py-3 px-4 border-b text-center">
+          </td> -->
+          <!-- <td class="py-3 px-4 border-b text-center">
             <div v-if="item.WITHDRAW > '0'" class="flex flex-col items-center justify-center">
               <div class="flex gap-3 items-center justify-center text-red-500">
                 <p>- {{ formatNumber(item.WITHDRAW) }}</p>
@@ -484,12 +484,12 @@ watch(dataReport, (newData) => {
                 <span v-if="item.CCY === 'USD'"> $ </span>
               </div>
             </div>
-          </td>
+          </td> -->
 
           <td class="py-3 px-4 border-b text-center">
-            <p class="text-black">{{ item.DESCRIPTION }}</p>
+            <!-- <p class="text-black">{{ item.DESCRIPTION }}</p> -->
           </td>
-          <td class="px-1 border-b text-center">
+          <!-- <td class="px-1 border-b text-center">
             <div class="flex items-center justify-center gap-3 text-black">
               <p>
                 {{ formatNumber(item.LUYKE_AMOUNT) }}
@@ -498,7 +498,7 @@ watch(dataReport, (newData) => {
               <span v-if="item.CCY === 'THB'"> ฿ </span>
               <span v-if="item.CCY === 'USD'"> $ </span>
             </div>
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </table>

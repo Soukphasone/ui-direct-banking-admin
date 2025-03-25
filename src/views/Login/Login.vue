@@ -70,7 +70,6 @@ const { userName, passWord, errorMessage, isLoading, isShowEye, handleShowEye, h
                     </svg>
                   </span>
                   <span v-else>
-                    <img src="@/assets/images/icon/icons8-eye-48.png" alt="" class="w-7" />
                     <svg
                       viewBox="'0 0 24 24'"
                       fill="currentColor"
