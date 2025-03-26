@@ -116,6 +116,6 @@ export const la = {
   corporate: 'ບໍລິສັດ (C)',
   financial: 'ສະຖາບັນການເງິນ (B)',
   authorize: 'ອະນຸມັດ',
-  please_select_ct_type:'ກະລຸນາເລືອກປະເພດລຸກຄ້າ'
+  please_select_ct_type:'ກະລຸນາເລືອກປະເພດລຸກຄ້າ',
 
 }

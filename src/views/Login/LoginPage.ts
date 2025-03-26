@@ -3,20 +3,27 @@ import { useRouter } from 'vue-router'
 import { Login } from '@/service/GetPostAPI'
 import { encryptData } from '@/stores/encryptDecrypt'
 import { PATH } from '@/router/pathName'
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 export default function useLoginPage() {
-  const { t } = useI18n();
+  const { t } = useI18n()
   const router = useRouter()
-  const userName = ref('admin')
-  const passWord = ref('123456')
+  const userName = ref('eiw')
+  const passWord = ref('adminlvb')
+  const checkError = ref(false)
   const errorMessage = ref('')
-  const isLoading = ref(false) 
+  const isLoading = ref(false)
   const isShowEye = ref(false)
 
-  const handleShowEye =()=>{
+  const handleShowEye = () => {
     isShowEye.value = !isShowEye.value
   }
+  
   const handleLogin = async () => {
+    if (!userName.value || !passWord.value) {
+      checkError.value = true
+      errorMessage.value = t('please_check_again')
+      return
+    }
     isLoading.value = true
     try {
       const userLogin = {
@@ -33,28 +40,26 @@ export default function useLoginPage() {
           router.push(PATH.HOME)
         }
       } else {
-        if(_dataLogin?.data === 'User or pass is incorrect')
-        {
+        if (_dataLogin?.data === 'User or pass is incorrect') {
           errorMessage.value = t('User_pass_incorrect')
           setTimeout(() => {
             errorMessage.value = ''
           }, 5000)
-        }
-        else{
+        } else {
           errorMessage.value = t('error')
           setTimeout(() => {
             errorMessage.value = ''
           }, 5000)
         }
-        }
-      
-    }  finally {
+      }
+    } finally {
       isLoading.value = false
     }
   }
   return {
     userName,
     passWord,
+    checkError,
     errorMessage,
     isLoading,
     isShowEye,
